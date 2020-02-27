@@ -19,8 +19,7 @@ sass.compiler = require('node-sass');
 
 // загружаем конфиги
 const pathGulp = './_config/';
-let pathSrc = './src_view/';
-const conf = config(pathGulp, pathSrc);
+const conf = config(pathGulp);
 
 // Работаем со страницами
 gulp.task('build', () => {
@@ -65,7 +64,7 @@ gulp.task('start', () => {
 
   browserSync.init(config);
   const watcher = gulp.watch(
-    `${pathSrc}${conf.dir}${conf.theme}/${conf.page}/**/*`
+    `${conf.pathSrc}${conf.dir}${conf.theme}/${conf.page}/**/*`
   );
   for (const operation of ['change', 'add', 'unlink']) {
     watcher.on(operation, (path, status) => {
@@ -127,7 +126,7 @@ function language() {
 }
 
 function template() {
-  let fileTemplate = `${pathSrc}${conf.dir}${conf.theme}/${conf.page}/template.twig`;
+  let fileTemplate = `${conf.pathSrc}${conf.dir}${conf.theme}/${conf.page}/template.twig`;
   createDir(fileTemplate, false);
   if (!fs.existsSync(fileTemplate)) {
     fs.writeFileSync(fileTemplate, '\n');
@@ -135,7 +134,7 @@ function template() {
 }
 
 function image() {
-  let imagePath = `${pathSrc}${conf.dir}${conf.theme}/${conf.page}/image/`;
+  let imagePath = `${conf.pathSrc}${conf.dir}${conf.theme}/${conf.page}/image/`;
   createDir(imagePath);
   gulp
     .src(`${imagePath}*.{gif,jpg,png,svg}`)
@@ -154,7 +153,7 @@ function image() {
 }
 
 function style(dev = true) {
-  let fileStyle = `${pathSrc}${conf.dir}${conf.theme}/${conf.page}/main.scss`;
+  let fileStyle = `${conf.pathSrc}${conf.dir}${conf.theme}/${conf.page}/main.scss`;
   createDir(fileStyle, false);
   if (!fs.existsSync(fileStyle)) {
     fs.writeFileSync(fileStyle, '\n');
@@ -179,7 +178,7 @@ function style(dev = true) {
 }
 
 function script(dev = true) {
-  let fileScript = `${pathSrc}${conf.dir}${conf.theme}/${conf.page}/main.js`;
+  let fileScript = `${conf.pathSrc}${conf.dir}${conf.theme}/${conf.page}/main.js`;
   createDir(fileScript, false);
   if (!fs.existsSync(fileScript)) {
     fs.writeFileSync(fileScript, '\n');
@@ -239,7 +238,7 @@ function createDir(path, lastPath = true) {
   }
 }
 
-function config(pathGulp, pathSrc) {
+function config(pathGulp) {
   // Получаем базовый конфиг
   let config_file = `${pathGulp}config.json`;
   if (!fs.existsSync(config_file)) {
@@ -265,7 +264,6 @@ function config(pathGulp, pathSrc) {
     if (arg.slice(0, 2) == '--') {
       let argArr = arg.replace('--', '').split('=');
 
-      // Проверяем правильность написания темы
       if (argArr[0] == 'theme' && argArr[1][0] != '/') {
         argArr[1] = `/${argArr[1]}`;
       }
@@ -294,7 +292,12 @@ function config(pathGulp, pathSrc) {
     );
   }
   // Создаем базовые директории
-  createDir(`${pathSrc}_lib`);
-  createDir(`${pathSrc}${conf.active.dir}${conf.active.theme}/_global`);
-  return { ...conf.dir[conf.active.dir], ...conf.active };
+  createDir(`${conf.pathSrc}_lib`);
+  createDir(`${conf.pathSrc}${conf.active.dir}${conf.active.theme}/_global`);
+  return {
+    ...conf.dir[conf.active.dir],
+    ...conf.active,
+    pathSrc: conf.pathSrc,
+    bsConnfig: conf.bsConfig,
+  };
 }

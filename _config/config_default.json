@@ -19,5 +19,6 @@
     "language": "ru-ru",
     "theme": "/default"
   },
+  "pathSrc": "./src_view/",
   "bsConfig": {}
 }
