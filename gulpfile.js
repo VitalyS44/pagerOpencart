@@ -1,4 +1,5 @@
 'use strict';
+const mkdirp = require('mkdirp');
 const fs = require('fs');
 const fsDel = require('del');
 const gulp = require('gulp');
@@ -99,8 +100,8 @@ function crsWatch(operation, path, status) {
 
 function controller() {
   let fileController = `${conf.pathController}${conf.page}.php`;
-  createDir(fileController, false);
   if (!fs.existsSync(fileController)) {
+    mkdirp.sync(fileController + '/../', false);
     const currentControllerName = conf.page
       .split('/')
       .map(part => {
@@ -119,23 +120,23 @@ function controller() {
 
 function language() {
   let fileLanguage = `${conf.pathLanguage}${conf.language}/${conf.page}.php`;
-  createDir(fileLanguage, false);
   if (!fs.existsSync(fileLanguage)) {
-    fs.copyFileSync(`${pathGulp}template/Language.php`, fileLanguage);
+    mkdirp.sync(fileLanguage + '/../');
+    fs.copyFileSync(`${pathGulp}template/language.php`, fileLanguage);
   }
 }
 
 function template() {
   let fileTemplate = `${conf.pathSrc}${conf.dir}${conf.theme}/${conf.page}/template.twig`;
-  createDir(fileTemplate, false);
   if (!fs.existsSync(fileTemplate)) {
+    mkdirp.sync(fileTemplate + '/../');
     fs.writeFileSync(fileTemplate, '\n');
   }
 }
 
 function image() {
   let imagePath = `${conf.pathSrc}${conf.dir}${conf.theme}/${conf.page}/image/`;
-  createDir(imagePath);
+  mkdirp.sync(imagePath);
   gulp
     .src(`${imagePath}*.{gif,jpg,png,svg}`)
     .pipe(
@@ -154,8 +155,8 @@ function image() {
 
 function style(dev = true) {
   let fileStyle = `${conf.pathSrc}${conf.dir}${conf.theme}/${conf.page}/main.scss`;
-  createDir(fileStyle, false);
   if (!fs.existsSync(fileStyle)) {
+    mkdirp.sync(fileStyle + '/../');
     fs.writeFileSync(fileStyle, '\n');
   }
 
@@ -179,8 +180,8 @@ function style(dev = true) {
 
 function script(dev = true) {
   let fileScript = `${conf.pathSrc}${conf.dir}${conf.theme}/${conf.page}/main.js`;
-  createDir(fileScript, false);
   if (!fs.existsSync(fileScript)) {
+    mkdirp.sync(fileScript + '/../');
     fs.writeFileSync(fileScript, '\n');
   }
   let bufer = gulp.src(fileScript);
@@ -214,28 +215,6 @@ function script(dev = true) {
     .pipe(hash())
     .pipe(gulp.dest(`${conf.pathView}${conf.page}`))
     .pipe(browserSync.stream());
-}
-
-function createDir(path, lastPath = true) {
-  let newDir = '';
-  const dirs = path.split('/');
-  const dirsLength = dirs.length - 1;
-  for (let i in dirs) {
-    //  Пропустить последнюю директорию
-    if (!lastPath && i == dirsLength) {
-      continue;
-    }
-
-    if (dirs[i] == '.') {
-      newDir += '.';
-      continue;
-    }
-
-    newDir += '/' + dirs[i];
-    if (!fs.existsSync(newDir)) {
-      fs.mkdirSync(newDir);
-    }
-  }
 }
 
 function config(pathGulp) {
@@ -292,8 +271,8 @@ function config(pathGulp) {
     );
   }
   // Создаем базовые директории
-  createDir(`${conf.pathSrc}_lib`);
-  createDir(`${conf.pathSrc}${conf.active.dir}${conf.active.theme}/_global`);
+  mkdirp.sync(`${conf.pathSrc}_lib`);
+  mkdirp.sync(`${conf.pathSrc}${conf.active.dir}${conf.active.theme}/_global`);
   return {
     ...conf.dir[conf.active.dir],
     ...conf.active,
