@@ -1,0 +1,4 @@
+**/node_modules/**
+_config/config.json
+_config/config_active.json
+.vscode/**

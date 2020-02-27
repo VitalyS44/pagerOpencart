@@ -1,0 +1,23 @@
+{
+  "dir": {
+    "catalog": {
+      "pathController": "./public/catalog/controller/",
+      "pathLanguage": "./public/catalog/language/",
+      "pathView": "./public/catalog/view/theme/{theme}/",
+      "isTheme": true
+    },
+    "admin": {
+      "pathController": "./public/admin/controller/",
+      "pathLanguage": "./public/admin/language/",
+      "pathView": "./public/admin/view/",
+      "isTheme": false
+    }
+  },
+  "active": {
+    "dir": "catalog",
+    "page": "common/home",
+    "language": "ru-ru",
+    "theme": "/default"
+  },
+  "bsConfig": {}
+}
