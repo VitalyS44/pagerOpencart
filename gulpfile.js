@@ -58,7 +58,7 @@ gulp.task('start', () => {
   for (const key in config) {
     switch (key) {
       case 'proxy':
-        config[key] += `/route=${config.page}`;
+        config[key] += `/route=${conf.page}`;
         break;
     }
   }
@@ -277,6 +277,6 @@ function config(pathGulp) {
     ...conf.dir[conf.active.dir],
     ...conf.active,
     pathSrc: conf.pathSrc,
-    bsConnfig: conf.bsConfig,
+    bsConfig: conf.bsConfig,
   };
 }
