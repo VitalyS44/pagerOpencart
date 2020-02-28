@@ -4,7 +4,8 @@
       "pathController": "./public/catalog/controller/",
       "pathLanguage": "./public/catalog/language/",
       "pathView": "./public/catalog/view/theme/{theme}/",
-      "isTheme": true
+      "isTheme": true,
+      "bsConfig": {}
     },
     "admin": {
       "pathController": "./public/admin/controller/",
@@ -17,7 +18,7 @@
     "dir": "catalog",
     "page": "common/home",
     "language": "ru-ru",
-    "theme": "/default"
+    "theme": "default"
   },
   "pathSrc": "./src_view/",
   "bsConfig": {}

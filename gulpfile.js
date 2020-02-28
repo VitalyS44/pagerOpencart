@@ -236,19 +236,22 @@ function config(pathGulp) {
   );
   // Читаем переданные опции на изменение активной конфигурации
   let args = {};
+
   for (const arg of process.argv) {
     if (arg.slice(0, 2) == '--') {
       let argArr = arg.replace('--', '').split('=');
-
-      if (argArr[0] == 'theme' && argArr[1][0] != '/') {
-        argArr[1] = `/${argArr[1]}`;
-      }
 
       args[argArr[0]] = argArr[1];
     }
   }
 
   for (const arg in args) {
+    if (arg == 'theme') {
+      if (args[arg].length > 0 && args[arg][0] != '/') {
+        args[arg] = `/${args[arg]}`;
+      }
+    }
+
     conf.active[arg] = args[arg];
   }
   // Записываем активную тему для pathView
@@ -270,10 +273,14 @@ function config(pathGulp) {
   // Создаем базовые директории
   mkdirp.sync(`${conf.pathSrc}_lib`);
   mkdirp.sync(`${conf.pathSrc}${conf.active.dir}${conf.active.theme}/_global`);
+
   return {
-    ...conf.dir[conf.active.dir],
     ...conf.active,
+    ...conf.dir[conf.active.dir],
     pathSrc: conf.pathSrc,
-    bsConfig: conf.bsConfig,
+    bsConfig: Object.assign(
+      conf.bsConfig,
+      conf.dir[conf.active.dir].bsConfig || {}
+    ),
   };
 }
