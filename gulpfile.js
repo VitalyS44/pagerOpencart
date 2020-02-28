@@ -27,7 +27,7 @@ const conf = config(pathGulp);
 // Работаем со страницами
 gulp.task('build', () => {
   // Чистим билдовую директорию
-  fsDel(`${conf.pathView}${conf.page}/*`);
+  fsDel(`${conf.pathView}${conf.page}/*`, conf.delConfig);
   // Ищем\создаем image
   image();
   // Ищем\создаем style
@@ -42,7 +42,7 @@ gulp.task('default', () => {
   // Ищем\создаем language
   language();
   // Чистим билдовую директорию
-  fsDel(`${conf.pathView}${conf.page}/*`);
+  fsDel(`${conf.pathView}${conf.page}/*`, conf.delConfig);
   // Ищем\создаем image
   image();
   // Ищем\создаем template
@@ -74,14 +74,18 @@ gulp.task('start', () => {
 
       switch (ext) {
         case '.js':
-          fsDel(`${conf.pathView}${conf.page}/*${ext}`).then(() => {
-            script();
-          });
+          fsDel(`${conf.pathView}${conf.page}/*${ext}`, conf.delConfig).then(
+            () => {
+              script();
+            }
+          );
           break;
         case '.scss':
-          fsDel(`${conf.pathView}${conf.page}/*.css`).then(() => {
-            style();
-          });
+          fsDel(`${conf.pathView}${conf.page}/*.css`, conf.delConfig).then(
+            () => {
+              style();
+            }
+          );
           break;
         case '.twig':
           browserSync.reload();
@@ -97,16 +101,23 @@ gulp.task('start', () => {
 
 // Удаление актовной страницы
 gulp.task('del', () => {
-  if(process.argv.indexOf('-src') !== -1) {
-    fsDel.sync(`${conf.pathController}${conf.page}.php`);
-    fsDel.sync(`${conf.pathLanguage}${conf.language}/${conf.page}.php`);
+  if (process.argv.indexOf('-src') !== -1) {
+    fsDel.sync(`${conf.pathController}${conf.page}.php`, conf.delConfig);
     fsDel.sync(
-      `${conf.pathSrc}${conf.dir}${conf.theme}/${conf.page}/template.twig`
+      `${conf.pathLanguage}${conf.language}/${conf.page}.php`,
+      conf.delConfig
     );
-    fsDel.sync(`${conf.pathSrc}${conf.dir}${conf.theme}/${conf.page}`);
+    fsDel.sync(
+      `${conf.pathSrc}${conf.dir}${conf.theme}/${conf.page}/template.twig`,
+      conf.delConfig
+    );
+    fsDel.sync(
+      `${conf.pathSrc}${conf.dir}${conf.theme}/${conf.page}`,
+      conf.delConfig
+    );
   }
 
-  fsDel.sync(`${conf.pathView}${conf.page}`);
+  fsDel.sync(`${conf.pathView}${conf.page}`, conf.delConfig);
 
   // Очистка пустых папок
   let dirs = [
@@ -115,29 +126,32 @@ gulp.task('del', () => {
     `${conf.pathView}${conf.page}`,
     `${conf.pathSrc}${conf.dir}${conf.theme}/${conf.page}`,
     `${conf.pathSrc}${conf.dir}${conf.theme}/_global`,
-    `${conf.pathSrc}_lib`
+    `${conf.pathSrc}_lib`,
   ];
 
-  delDir(dirs);
+  return new Promise(function(resolve, reject) {
+    dirEmptyDel(dirs);
+    resolve();
+  });
 });
 
-function delDir(dirs, recursive = true) {
+async function dirEmptyDel(dirs, recursive = true) {
   for (let dir of dirs) {
     dir = path.resolve(__dirname, dir);
-    
+
     if (fs.existsSync(dir)) {
       let files = fs.readdirSync(dir);
 
       if (files.length == 0) {
-        fsDel.sync(dir);
+        fsDel.sync(dir, conf.delConfig);
 
         if (recursive) {
-          delDir([path.resolve(dir + '/..')], recursive);
+          dirEmptyDel([path.resolve(dir + '/..')], recursive);
         }
       }
     } else {
       if (recursive) {
-        delDir([path.resolve(dir + '/..')], recursive);
+        dirEmptyDel([path.resolve(dir + '/..')], recursive);
       }
     }
   }
@@ -330,5 +344,6 @@ function config(pathGulp) {
       conf.bsConfig,
       conf.dir[conf.active.dir].bsConfig || {}
     ),
+    delConfig: conf.delConfig,
   };
 }

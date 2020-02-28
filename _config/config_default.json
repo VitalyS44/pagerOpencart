@@ -21,5 +21,6 @@
     "theme": "default"
   },
   "pathSrc": "./src_view/",
-  "bsConfig": {}
+  "bsConfig": {},
+  "delConfig": {}
 }
