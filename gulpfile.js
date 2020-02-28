@@ -2,7 +2,9 @@
 const mkdirp = require('mkdirp');
 const fs = require('fs');
 const fsDel = require('del');
+const path = require('path');
 const gulp = require('gulp');
+const watch = require('node-watch');
 const concat = require('gulp-concat');
 const autoprefixer = require('autoprefixer');
 const sass = require('gulp-sass');
@@ -58,45 +60,40 @@ gulp.task('start', () => {
   for (const key in config) {
     switch (key) {
       case 'proxy':
-        config[key] += `/route=${conf.page}`;
+        config[key] += `/index.php?route=${conf.page}`;
         break;
     }
   }
 
   browserSync.init(config);
-  const watcher = gulp.watch(
-    `${conf.pathSrc}${conf.dir}${conf.theme}/${conf.page}/**/*`
-  );
-  for (const operation of ['change', 'add', 'unlink']) {
-    watcher.on(operation, (path, status) => {
-      crsWatch(operation, path, status);
-    });
-  }
-});
+  const watcher = watch(
+    `${conf.pathSrc}${conf.dir}${conf.theme}/${conf.page}`,
+    { delay: 500, recursive: true },
+    (evt, name) => {
+      let ext = path.extname(name);
 
-function crsWatch(operation, path, status) {
-  let extension = path.replace(/^[\w\\]*/, '');
-
-  switch (extension) {
-    case '.js':
-      fsDel(`${conf.pathView}${conf.page}/*${extension}`).then(() => {
-        script();
-      });
-      break;
-    case '.scss':
-      fsDel(`${conf.pathView}${conf.page}/*.css`).then(() => {
-        style();
-      });
-      break;
-    case '.twig':
-      browserSync.reload();
-      break;
-    default:
-      if (['gif', 'jpg', 'png', 'svg'].indexOf(extension) !== -1) {
-        image();
+      switch (ext) {
+        case '.js':
+          fsDel(`${conf.pathView}${conf.page}/*${ext}`).then(() => {
+            script();
+          });
+          break;
+        case '.scss':
+          fsDel(`${conf.pathView}${conf.page}/*.css`).then(() => {
+            style();
+          });
+          break;
+        case '.twig':
+          browserSync.reload();
+          break;
+        default:
+          if (['gif', 'jpg', 'png', 'svg'].indexOf(ext) !== -1) {
+            image();
+          }
       }
-  }
-}
+    }
+  );
+});
 
 function controller() {
   let fileController = `${conf.pathController}${conf.page}.php`;
