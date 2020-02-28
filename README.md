@@ -8,6 +8,8 @@
 
 `gulp build` - собрать активную страницу
 
+`gulp del` - удалить билды активной страницы (**опция -src уадаляет исходные файлы**)
+
 **Example:** `gulp --page=common/home --language=en-en --dir=admin`
 
 ## Опции
@@ -37,4 +39,5 @@
       },
       "pathSrc": "./src_view/", \\ Путь хранения сходников
       "bsConfig": {} \\ Базовая конфигурация модуля browserSync
-    }```
+    }
+```

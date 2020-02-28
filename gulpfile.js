@@ -95,6 +95,54 @@ gulp.task('start', () => {
   );
 });
 
+// Удаление актовной страницы
+gulp.task('del', () => {
+  if(process.argv.indexOf('-src') !== -1) {
+    fsDel.sync(`${conf.pathController}${conf.page}.php`);
+    fsDel.sync(`${conf.pathLanguage}${conf.language}/${conf.page}.php`);
+    fsDel.sync(
+      `${conf.pathSrc}${conf.dir}${conf.theme}/${conf.page}/template.twig`
+    );
+    fsDel.sync(`${conf.pathSrc}${conf.dir}${conf.theme}/${conf.page}`);
+  }
+
+  fsDel.sync(`${conf.pathView}${conf.page}`);
+
+  // Очистка пустых папок
+  let dirs = [
+    `${conf.pathController}${conf.page}`,
+    `${conf.pathLanguage}${conf.language}/${conf.page}`,
+    `${conf.pathView}${conf.page}`,
+    `${conf.pathSrc}${conf.dir}${conf.theme}/${conf.page}`,
+    `${conf.pathSrc}${conf.dir}${conf.theme}/_global`,
+    `${conf.pathSrc}_lib`
+  ];
+
+  delDir(dirs);
+});
+
+function delDir(dirs, recursive = true) {
+  for (let dir of dirs) {
+    dir = path.resolve(__dirname, dir);
+    
+    if (fs.existsSync(dir)) {
+      let files = fs.readdirSync(dir);
+
+      if (files.length == 0) {
+        fsDel.sync(dir);
+
+        if (recursive) {
+          delDir([path.resolve(dir + '/..')], recursive);
+        }
+      }
+    } else {
+      if (recursive) {
+        delDir([path.resolve(dir + '/..')], recursive);
+      }
+    }
+  }
+}
+
 function controller() {
   let fileController = `${conf.pathController}${conf.page}.php`;
   if (!fs.existsSync(fileController)) {
@@ -241,7 +289,7 @@ function config(pathGulp) {
     if (arg.slice(0, 2) == '--') {
       let argArr = arg.replace('--', '').split('=');
 
-      args[argArr[0]] = argArr[1];
+      args[argArr[0]] = argArr[1] || '';
     }
   }
 
