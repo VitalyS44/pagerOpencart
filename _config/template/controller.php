@@ -1,5 +1,5 @@
 <?php
-class Controller__Class extends Controller
+class Controller__Class extends Page
 {
     public function index()
     {
