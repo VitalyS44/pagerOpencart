@@ -18,11 +18,16 @@ const minify = require('gulp-babel-minify');
 const imagemin = require('gulp-imagemin');
 const browserSync = require('browser-sync').create();
 
-sass.compiler = require('node-sass');
+// Модуль подгрузки файлов конфигурации
+const configPager = require("./js/config");
 
-// загружаем конфиги
-const pathGulp = './_config/';
-const conf = config(pathGulp);
+sass.compiler = require("node-sass");
+
+// Путь до конфигурационных файлов
+const pathGulp = "./_config/";
+// Загружаем конфиги
+// TODO Возможно придется сделать изменяемой для создания нескольких страниц
+const conf = configPager(pathGulp);
 
 // Работаем со страницами
 gulp.task('build', () => {
@@ -53,7 +58,7 @@ gulp.task('default', () => {
   return script();
 });
 
-//Таск для режима разработки
+// Таск для режима разработки
 gulp.task('start', () => {
   let config = conf.bsConfig;
 
@@ -274,76 +279,4 @@ function script(dev = true) {
     .pipe(hash())
     .pipe(gulp.dest(`${conf.pathView}${conf.page}`))
     .pipe(browserSync.stream());
-}
-
-function config(pathGulp) {
-  // Получаем базовый конфиг
-  let config_file = `${pathGulp}config.json`;
-  if (!fs.existsSync(config_file)) {
-    if (fs.existsSync(`${pathGulp}config_default.json`)) {
-      config_file = `${pathGulp}config_default.json`;
-    }
-  }
-
-  const conf = JSON.parse(fs.readFileSync(config_file));
-  // Получаем активный(рабочий) конфиг
-  if (!fs.existsSync(`${pathGulp}config_active.json`)) {
-    fs.writeFileSync(
-      `${pathGulp}config_active.json`,
-      JSON.stringify(conf.active)
-    );
-  }
-  conf.active = JSON.parse(
-    fs.readFileSync(`${pathGulp}config_active.json`, 'utf-8')
-  );
-  // Читаем переданные опции на изменение активной конфигурации
-  let args = {};
-
-  for (const arg of process.argv) {
-    if (arg.slice(0, 2) == '--') {
-      let argArr = arg.replace('--', '').split('=');
-
-      args[argArr[0]] = argArr[1] || '';
-    }
-  }
-
-  for (const arg in args) {
-    if (arg == 'theme') {
-      if (args[arg].length > 0 && args[arg][0] != '/') {
-        args[arg] = `/${args[arg]}`;
-      }
-    }
-
-    conf.active[arg] = args[arg];
-  }
-  // Записываем активную тему для pathView
-  if (conf.dir[conf.active.dir].isTheme) {
-    conf.dir[conf.active.dir].pathView = conf.dir[
-      conf.active.dir
-    ].pathView.replace('{theme}', conf.active.theme.slice(1));
-  } else {
-    conf.active.theme = '/';
-  }
-  // Записываем новую активную конфигурацию
-  console.log(conf.active);
-  if (Object.keys(args).length > 0) {
-    fs.writeFileSync(
-      `${pathGulp}config_active.json`,
-      JSON.stringify(conf.active)
-    );
-  }
-  // Создаем базовые директории
-  mkdirp.sync(`${conf.pathSrc}_lib`);
-  mkdirp.sync(`${conf.pathSrc}${conf.active.dir}${conf.active.theme}/_global`);
-
-  return {
-    ...conf.active,
-    ...conf.dir[conf.active.dir],
-    pathSrc: conf.pathSrc,
-    bsConfig: Object.assign(
-      conf.bsConfig,
-      conf.dir[conf.active.dir].bsConfig || {}
-    ),
-    delConfig: conf.delConfig,
-  };
 }
