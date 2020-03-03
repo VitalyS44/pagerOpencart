@@ -4,7 +4,6 @@ const mkdirp = require('mkdirp');
 const controller = function(cb) {
   
   let fileController = `${conf.pathController}${conf.page}.php`;
-  console.log(fileController);
   
   if (!fs.existsSync(fileController)) {
     mkdirp.sync(fileController + '/..', false);
