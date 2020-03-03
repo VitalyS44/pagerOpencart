@@ -18,7 +18,7 @@ const style = function() {
 
   let fileStyle = `${conf.pathSrc}${conf.dir}${conf.theme}/${conf.page}/main.scss`;
   if (!fs.existsSync(fileStyle)) {
-    mkdirp.sync(fileStyle + '/../');
+    mkdirp.sync(fileStyle + '/..');
     fs.writeFileSync(fileStyle, '\n');
   }
 

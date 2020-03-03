@@ -14,7 +14,7 @@ const script = function() {
 
   let fileScript = `${conf.pathSrc}${conf.dir}${conf.theme}/${conf.page}/main.js`;
   if (!fs.existsSync(fileScript)) {
-    mkdirp.sync(fileScript + '/../');
+    mkdirp.sync(fileScript + '/..');
     fs.writeFileSync(fileScript, '\n');
   }
   let bufer = gulp.src(fileScript);

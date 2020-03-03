@@ -15,6 +15,7 @@ const pages = function(cb) {
 
   for (page of pages) {
     conf.page = page;
+    console.log(page);
 
     (() => {
       contrPager(() => {});
@@ -40,7 +41,11 @@ function getPages(dir, result) {
     }
 
     if (path.extname(file) == '.twig') {
-      result.push(dir.replace(`${conf.pathSrc}${conf.dir}/`, ''));
+      result.push(
+        dir
+          .replace(`${conf.pathSrc}${conf.dir}/`, '')
+          .replace(`${conf.theme}`.replace('/', ''), '')
+      );
       break;
     }
 
