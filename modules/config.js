@@ -1,7 +1,7 @@
 const fs = require("fs");
 const mkdirp = require("mkdirp");
 
-const config = function(pathGulp) {
+const config = function() {
   // Получаем базовый конфиг
   let config_file = `${pathGulp}config.json`;
   if (!fs.existsSync(config_file)) {

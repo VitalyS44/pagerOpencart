@@ -4,9 +4,11 @@
   "description": "js,php,twig",
   "main": "gulpfile.js",
   "scripts": {
-    "page": "gulp page",
+    "page": "gulp",
     "start": "gulp start",
-    "build": "gulp builld"
+    "build": "gulp builld -prod",
+    "del": "gulp del",
+    "delsrc": "gulp del -src"
   },
   "author": "pl",
   "license": "ISC",

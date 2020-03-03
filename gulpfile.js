@@ -1,282 +1,33 @@
 'use strict';
-const mkdirp = require('mkdirp');
-const fs = require('fs');
-const fsDel = require('del');
-const path = require('path');
-const gulp = require('gulp');
-const watch = require('node-watch');
-const concat = require('gulp-concat');
-const autoprefixer = require('autoprefixer');
-const sass = require('gulp-sass');
-const rollup = require('gulp-better-rollup');
-const babel = require('rollup-plugin-babel');
-const hash = require('gulp-hash-filename');
-const postcss = require('gulp-postcss');
-const cssnano = require('cssnano');
-const sourcemaps = require('gulp-sourcemaps');
-const minify = require('gulp-babel-minify');
-const imagemin = require('gulp-imagemin');
-const browserSync = require('browser-sync').create();
+const { series, parallel } = require('gulp');
+global.browserSync = require('browser-sync').create();
 
 // Модуль подгрузки файлов конфигурации
-const configPager = require("./js/config");
-
-sass.compiler = require("node-sass");
+const configPager = require('./modules/config');
+const contrPager = require('./modules/controller');
+const langPager = require('./modules/language');
+const templatePager = require('./modules/template');
+const image = require('./modules/image');
+const style = require('./modules/style');
+const script = require('./modules/script');
+const watch = require('./modules/watch');
+const delPager = require('./modules/delete');
 
 // Путь до конфигурационных файлов
-const pathGulp = "./_config/";
+global.pathGulp = './_config/';
+// Запуск в продуктовом режиме
+global.prod = process.argv.indexOf('-prod') === '-1' ? false : true;
 // Загружаем конфиги
-// TODO Возможно придется сделать изменяемой для создания нескольких страниц
-const conf = configPager(pathGulp);
-
-// Работаем со страницами
-gulp.task('build', () => {
-  // Чистим билдовую директорию
-  fsDel(`${conf.pathView}${conf.page}/*`, conf.delConfig);
-  // Ищем\создаем image
-  image();
-  // Ищем\создаем style
-  style(false);
-  // Ищем создаем js
-  return script(false);
-});
-
-gulp.task('default', () => {
-  // Ищем\создаем controller.php
-  controller();
-  // Ищем\создаем language
-  language();
-  // Чистим билдовую директорию
-  fsDel(`${conf.pathView}${conf.page}/*`, conf.delConfig);
-  // Ищем\создаем image
-  image();
-  // Ищем\создаем template
-  template();
-  // Ищем\создаем style
-  style();
-  // Ищем создаем js
-  return script();
-});
-
-// Таск для режима разработки
-gulp.task('start', () => {
-  let config = conf.bsConfig;
-
-  for (const key in config) {
-    switch (key) {
-      case 'proxy':
-        config[key] += `/index.php?route=${conf.page}`;
-        break;
-    }
-  }
-
-  browserSync.init(config);
-  const watcher = watch(
-    `${conf.pathSrc}${conf.dir}${conf.theme}/${conf.page}`,
-    { delay: 500, recursive: true },
-    (evt, name) => {
-      let ext = path.extname(name);
-
-      switch (ext) {
-        case '.js':
-          fsDel(`${conf.pathView}${conf.page}/*${ext}`, conf.delConfig).then(
-            () => {
-              script();
-            }
-          );
-          break;
-        case '.scss':
-          fsDel(`${conf.pathView}${conf.page}/*.css`, conf.delConfig).then(
-            () => {
-              style();
-            }
-          );
-          break;
-        case '.twig':
-          browserSync.reload();
-          break;
-        default:
-          if (['gif', 'jpg', 'png', 'svg'].indexOf(ext) !== -1) {
-            image();
-          }
-      }
-    }
-  );
-});
+global.conf = configPager();
 
 // Удаление актовной страницы
-gulp.task('del', () => {
-  if (process.argv.indexOf('-src') !== -1) {
-    fsDel.sync(`${conf.pathController}${conf.page}.php`, conf.delConfig);
-    fsDel.sync(
-      `${conf.pathLanguage}${conf.language}/${conf.page}.php`,
-      conf.delConfig
-    );
-    fsDel.sync(
-      `${conf.pathSrc}${conf.dir}${conf.theme}/${conf.page}/template.twig`,
-      conf.delConfig
-    );
-    fsDel.sync(
-      `${conf.pathSrc}${conf.dir}${conf.theme}/${conf.page}`,
-      conf.delConfig
-    );
-  }
-
-  fsDel.sync(`${conf.pathView}${conf.page}`, conf.delConfig);
-
-  // Очистка пустых папок
-  let dirs = [
-    `${conf.pathController}${conf.page}`,
-    `${conf.pathLanguage}${conf.language}/${conf.page}`,
-    `${conf.pathView}${conf.page}`,
-    `${conf.pathSrc}${conf.dir}${conf.theme}/${conf.page}`,
-    `${conf.pathSrc}${conf.dir}${conf.theme}/_global`,
-    `${conf.pathSrc}_lib`,
-  ];
-
-  return new Promise(function(resolve, reject) {
-    dirEmptyDel(dirs);
-    resolve();
-  });
-});
-
-async function dirEmptyDel(dirs, recursive = true) {
-  for (let dir of dirs) {
-    dir = path.resolve(__dirname, dir);
-
-    if (fs.existsSync(dir)) {
-      let files = fs.readdirSync(dir);
-
-      if (files.length == 0) {
-        fsDel.sync(dir, conf.delConfig);
-
-        if (recursive) {
-          dirEmptyDel([path.resolve(dir + '/..')], recursive);
-        }
-      }
-    } else {
-      if (recursive) {
-        dirEmptyDel([path.resolve(dir + '/..')], recursive);
-      }
-    }
-  }
-}
-
-function controller() {
-  let fileController = `${conf.pathController}${conf.page}.php`;
-  if (!fs.existsSync(fileController)) {
-    mkdirp.sync(fileController + '/../', false);
-    const currentControllerName = conf.page
-      .split('/')
-      .map(part => {
-        return `${part.charAt(0).toUpperCase()}${part.slice(1)}`;
-      })
-      .join('');
-
-    let content = fs
-      .readFileSync(`${pathGulp}template/controller.php`, 'utf8')
-      .replace(/__Class/, currentControllerName)
-      .replace(/__File/g, conf.page);
-
-    fs.writeFileSync(fileController, content);
-  }
-}
-
-function language() {
-  let fileLanguage = `${conf.pathLanguage}${conf.language}/${conf.page}.php`;
-  if (!fs.existsSync(fileLanguage)) {
-    mkdirp.sync(fileLanguage + '/../');
-    fs.copyFileSync(`${pathGulp}template/language.php`, fileLanguage);
-  }
-}
-
-function template() {
-  let fileTemplate = `${conf.pathSrc}${conf.dir}${conf.theme}/${conf.page}/template.twig`;
-  if (!fs.existsSync(fileTemplate)) {
-    mkdirp.sync(fileTemplate + '/../');
-    fs.writeFileSync(fileTemplate, '\n');
-  }
-}
-
-function image() {
-  let imagePath = `${conf.pathSrc}${conf.dir}${conf.theme}/${conf.page}/image/`;
-  mkdirp.sync(imagePath);
-  gulp
-    .src(`${imagePath}*.{gif,jpg,png,svg}`)
-    .pipe(
-      imagemin([
-        imagemin.gifsicle({ interlaced: true }),
-        imagemin.mozjpeg({ quality: 75, progressive: true }),
-        imagemin.optipng({ optimizationLevel: 5 }),
-        imagemin.svgo({
-          plugins: [{ removeViewBox: true }, { cleanupIDs: false }],
-        }),
-      ])
-    )
-    .pipe(gulp.dest(`${conf.pathView}${conf.page}/image/`))
-    .pipe(browserSync.stream());
-}
-
-function style(dev = true) {
-  let fileStyle = `${conf.pathSrc}${conf.dir}${conf.theme}/${conf.page}/main.scss`;
-  if (!fs.existsSync(fileStyle)) {
-    mkdirp.sync(fileStyle + '/../');
-    fs.writeFileSync(fileStyle, '\n');
-  }
-
-  const plugins = [autoprefixer(), cssnano()];
-
-  let bufer = gulp.src(fileStyle).pipe(browserSync.stream());
-  if (dev) {
-    bufer = bufer.pipe(sourcemaps.init());
-  }
-  bufer = bufer
-    .pipe(sass.sync().on('error', sass.logError))
-    .pipe(postcss(plugins));
-  if (dev) {
-    bufer = bufer.pipe(sourcemaps.write());
-  }
-  return bufer
-    .pipe(concat('main.css'))
-    .pipe(hash())
-    .pipe(gulp.dest(`${conf.pathView}${conf.page}`));
-}
-
-function script(dev = true) {
-  let fileScript = `${conf.pathSrc}${conf.dir}${conf.theme}/${conf.page}/main.js`;
-  if (!fs.existsSync(fileScript)) {
-    mkdirp.sync(fileScript + '/../');
-    fs.writeFileSync(fileScript, '\n');
-  }
-  let bufer = gulp.src(fileScript);
-  if (dev) {
-    bufer = bufer.pipe(sourcemaps.init());
-  }
-  bufer = bufer
-    .pipe(
-      rollup(
-        {
-          plugins: [babel()],
-        },
-        {
-          format: 'iife',
-        }
-      )
-    )
-    .pipe(concat('main.js'));
-  if (dev) {
-    bufer = bufer
-      .pipe(
-        minify({
-          mangle: {
-            keepClassName: true,
-          },
-        })
-      )
-      .pipe(sourcemaps.write());
-  }
-  return bufer
-    .pipe(hash())
-    .pipe(gulp.dest(`${conf.pathView}${conf.page}`))
-    .pipe(browserSync.stream());
-}
+exports.del = delPager;
+// Сборка страницы
+exports.build = parallel(image, style, script);
+// Режим разработки
+exports.start = watch;
+// Создание страницы
+exports.default = series(
+  parallel(contrPager, langPager, templatePager),
+  parallel(image, style, script)
+);
