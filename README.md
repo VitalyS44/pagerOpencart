@@ -8,6 +8,8 @@
 
 `gulp del` - Удаление активной страницы (** опция -src удаляет исходники**)
 
+`gulp pages` - Сборка всех страниц текущего проекта, темы и языка
+
 `gulp [--option=value]`
 
 **Example:** `gulp --page=common/home --language=en-en --dir=admin`
