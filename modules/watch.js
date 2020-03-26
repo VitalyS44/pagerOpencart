@@ -18,7 +18,7 @@ const watch = function() {
 
   browserSync.init(config);
   const watcher = nodeWatch(
-    `${conf.pathSrc}${conf.dir}${conf.theme}/${conf.page}`,
+    `${conf.pathSrc}${conf.theme}/${conf.page}`,
     { delay: 500, recursive: true },
     (evt, name) => {
       let ext = path.extname(name);
