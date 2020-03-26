@@ -20,7 +20,7 @@
     "language": "ru-ru",
     "theme": "default"
   },
-  "pathSrc": "./src_view/",
+  "pathSrc": "./src_view/{dir}",
   "bsConfig": {},
   "delConfig": {}
 }

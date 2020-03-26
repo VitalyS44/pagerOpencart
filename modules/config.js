@@ -1,5 +1,5 @@
-const fs = require("fs");
-const mkdirp = require("mkdirp");
+const fs = require('fs');
+const mkdirp = require('mkdirp');
 
 const config = function() {
   // Получаем базовый конфиг
@@ -8,7 +8,7 @@ const config = function() {
     if (fs.existsSync(`${pathGulp}config_default.json`)) {
       config_file = `${pathGulp}config_default.json`;
     } else {
-      throw "Не найден базовый файл конфигурации.";
+      throw 'Не найден базовый файл конфигурации.';
     }
   }
 
@@ -21,22 +21,22 @@ const config = function() {
     );
   }
   conf.active = JSON.parse(
-    fs.readFileSync(`${pathGulp}config_active.json`, "utf-8")
+    fs.readFileSync(`${pathGulp}config_active.json`, 'utf-8')
   );
   // Читаем переданные опции на изменение активной конфигурации
   let args = {};
 
   for (const arg of process.argv) {
-    if (arg.slice(0, 2) == "--") {
-      let argArr = arg.replace("--", "").split("=");
+    if (arg.slice(0, 2) == '--') {
+      let argArr = arg.replace('--', '').split('=');
 
-      args[argArr[0]] = argArr[1] || "";
+      args[argArr[0]] = argArr[1] || '';
     }
   }
 
   for (const arg in args) {
-    if (arg == "theme") {
-      if (args[arg].length > 0 && args[arg][0] != "/") {
+    if (arg == 'theme') {
+      if (args[arg].length > 0 && args[arg][0] != '/') {
         args[arg] = `/${args[arg]}`;
       }
     }
@@ -47,9 +47,9 @@ const config = function() {
   if (conf.dir[conf.active.dir].isTheme) {
     conf.dir[conf.active.dir].pathView = conf.dir[
       conf.active.dir
-    ].pathView.replace("{theme}", conf.active.theme.slice(1));
+    ].pathView.replace('{theme}', conf.active.theme.slice(1));
   } else {
-    conf.active.theme = "/";
+    conf.active.theme = '/';
   }
   // Записываем новую активную конфигурацию
   console.log(conf.active);
@@ -59,19 +59,16 @@ const config = function() {
       JSON.stringify(conf.active)
     );
   }
-  // Создаем базовые директории
-  mkdirp.sync(`${conf.pathSrc}_lib`);
-  mkdirp.sync(`${conf.pathSrc}${conf.active.dir}${conf.active.theme}/_global`);
 
   return {
     ...conf.active,
     ...conf.dir[conf.active.dir],
-    pathSrc: conf.pathSrc,
+    pathSrc: conf.pathSrc.replace('{dir}', conf.active.dir),
     bsConfig: Object.assign(
       conf.bsConfig,
       conf.dir[conf.active.dir].bsConfig || {}
     ),
-    delConfig: conf.delConfig
+    delConfig: conf.delConfig,
   };
 };
 

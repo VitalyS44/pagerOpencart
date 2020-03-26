@@ -10,7 +10,7 @@ const style = require('./style');
 const script = require('./script');
 
 const pages = function(cb) {
-  const baseDir = `${conf.pathSrc}${conf.dir}${conf.theme}`;
+  const baseDir = `${conf.pathSrc}${conf.theme}`;
   const pages = getPages(baseDir, []);
 
   for (page of pages) {
@@ -40,9 +40,9 @@ function getPages(dir, result) {
     }
 
     if (path.extname(file) == '.twig') {
-      // Очищаем путь от бызовой директории, темы и лишних символов
+      // Очищаем путь от базовой директории, темы и лишних символов
       dir = dir
-        .replace(`${conf.pathSrc}${conf.dir}/`, '')
+        .replace(`${conf.pathSrc}/`, '')
         .replace(`${conf.theme}`.replace('/', ''), '')
         .replace(/^[\s\\\/\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
       result.push(dir);

@@ -12,7 +12,7 @@ const sourcemaps = require('gulp-sourcemaps');
 const script = function() {
   fsDel(`${conf.pathView}${conf.page}/*.css`, conf.delConfig);
 
-  let fileScript = `${conf.pathSrc}${conf.dir}${conf.theme}/${conf.page}/main.js`;
+  let fileScript = `${conf.pathSrc}${conf.theme}/${conf.page}/main.js`;
   if (!fs.existsSync(fileScript)) {
     mkdirp.sync(fileScript + '/..');
     fs.writeFileSync(fileScript, '\n');

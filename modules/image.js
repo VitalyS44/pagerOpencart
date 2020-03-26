@@ -3,7 +3,7 @@ const mkdirp = require('mkdirp');
 const imagemin = require('gulp-imagemin');
 
 const image = function() {
-  let imagePath = `${conf.pathSrc}${conf.dir}${conf.theme}/${conf.page}/image/`;
+  let imagePath = `${conf.pathSrc}${conf.theme}/${conf.page}/image/`;
   mkdirp.sync(imagePath);
   return gulp
     .src(`${imagePath}*.{gif,jpg,png,svg}`)

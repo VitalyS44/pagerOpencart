@@ -10,13 +10,10 @@ const delPager = function(cb) {
       conf.delConfig
     );
     fsDel.sync(
-      `${conf.pathSrc}${conf.dir}${conf.theme}/${conf.page}/template.twig`,
+      `${conf.pathSrc}${conf.theme}/${conf.page}/template.twig`,
       conf.delConfig
     );
-    fsDel.sync(
-      `${conf.pathSrc}${conf.dir}${conf.theme}/${conf.page}`,
-      conf.delConfig
-    );
+    fsDel.sync(`${conf.pathSrc}${conf.theme}/${conf.page}`, conf.delConfig);
   }
 
   fsDel.sync(`${conf.pathView}${conf.page}`, conf.delConfig);
@@ -26,9 +23,7 @@ const delPager = function(cb) {
     `${conf.pathController}${conf.page}`,
     `${conf.pathLanguage}${conf.language}/${conf.page}`,
     `${conf.pathView}${conf.page}`,
-    `${conf.pathSrc}${conf.dir}${conf.theme}/${conf.page}`,
-    `${conf.pathSrc}${conf.dir}${conf.theme}/_global`,
-    `${conf.pathSrc}_lib`,
+    `${conf.pathSrc}${conf.theme}/${conf.page}`,
   ];
 
   return new Promise(function(resolve, reject) {

@@ -7,7 +7,7 @@ const language = function(cb) {
     mkdirp.sync(fileLanguage + '/..');
     fs.copyFileSync(`${pathGulp}template/language.php`, fileLanguage);
   }
-  
+
   cb();
 };
 
