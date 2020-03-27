@@ -10,7 +10,7 @@ const minify = require('gulp-babel-minify');
 const sourcemaps = require('gulp-sourcemaps');
 
 const script = function() {
-  fsDel(`${conf.pathView}${conf.page}/*.css`, conf.delConfig);
+  fsDel(`${conf.pathView}${conf.page}/*.js`, conf.delConfig);
 
   let fileScript = `${conf.pathSrc}${conf.theme}/${conf.page}/main.js`;
   if (!fs.existsSync(fileScript)) {

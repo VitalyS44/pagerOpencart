@@ -13,7 +13,7 @@ const sourcemaps = require('gulp-sourcemaps');
 sass.compiler = require('node-sass');
 
 const style = function() {
-  fsDel(`${conf.pathView}${conf.page}/*.js`, conf.delConfig);
+  fsDel(`${conf.pathView}${conf.page}/*.css`, conf.delConfig);
 
   let fileStyle = `${conf.pathSrc}${conf.theme}/${conf.page}/main.scss`;
   if (!fs.existsSync(fileStyle)) {
