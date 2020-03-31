@@ -6,7 +6,7 @@
   "scripts": {
     "page": "gulp",
     "start": "gulp start",
-    "build": "gulp builld -prod",
+    "build": "gulp build -prod",
     "del": "gulp del",
     "delsrc": "gulp del -src"
   },

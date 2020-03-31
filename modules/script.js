@@ -21,28 +21,27 @@ const script = function() {
   if (!prod) {
     bufer = bufer.pipe(sourcemaps.init());
   }
-  bufer = bufer
-    .pipe(
-      rollup(
-        {
-          plugins: [babel()],
-        },
-        {
-          format: 'iife',
-        }
-      )
+  bufer = bufer.pipe(
+    rollup(
+      {
+        plugins: [babel()],
+      },
+      {
+        format: 'iife',
+      }
     )
-    .pipe(concat('main.js'));
+  );
+  if (prod) {
+    bufer = bufer.pipe(
+      minify({
+        mangle: {
+          keepClassName: true,
+        },
+      })
+    );
+  }
   if (!prod) {
-    bufer = bufer
-      .pipe(
-        minify({
-          mangle: {
-            keepClassName: true,
-          },
-        })
-      )
-      .pipe(sourcemaps.write());
+    bufer = bufer.pipe(sourcemaps.write());
   }
   return bufer
     .pipe(hash())
