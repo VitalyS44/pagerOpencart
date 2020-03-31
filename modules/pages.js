@@ -39,7 +39,7 @@ function getPages(dir, result) {
       continue;
     }
 
-    if (path.extname(file) == '.twig') {
+    if (path.basename(file) == 'template.twig') {
       // Очищаем путь от базовой директории, темы и лишних символов
       dir = dir
         .replace(`${conf.pathSrc}/`, '')
