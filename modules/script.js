@@ -4,6 +4,7 @@ const fsDel = require('del');
 const mkdirp = require('mkdirp');
 const concat = require('gulp-concat');
 const rollup = require('gulp-better-rollup');
+const commonjs = require('@rollup/plugin-commonjs');
 const babel = require('rollup-plugin-babel');
 const hash = require('gulp-hash-filename');
 const minify = require('gulp-babel-minify');
@@ -24,7 +25,7 @@ const script = function() {
   bufer = bufer.pipe(
     rollup(
       {
-        plugins: [babel()],
+        plugins: [commonjs(), babel()],
       },
       {
         format: 'iife',
