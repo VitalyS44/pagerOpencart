@@ -12,7 +12,7 @@ const sourcemaps = require('gulp-sourcemaps');
 
 sass.compiler = require('node-sass');
 
-const style = function() {
+const style = function () {
   fsDel(`${conf.pathView}${conf.page}/*.css`, conf.delConfig);
 
   let fileStyle = `${conf.pathSrc}${conf.theme}/${conf.page}/main.scss`;
@@ -21,7 +21,10 @@ const style = function() {
     fs.writeFileSync(fileStyle, '\n');
   }
 
-  const plugins = [autoprefixer(), cssnano()];
+  let plugins = [autoprefixer()];
+  if (prod) {
+    plugins.push(cssnano());
+  }
 
   let bufer = gulp.src(fileStyle).pipe(browserSync.stream());
   if (!prod) {
