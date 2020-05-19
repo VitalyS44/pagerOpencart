@@ -17,7 +17,7 @@ const pages = require('./modules/pages');
 // Путь до конфигурационных файлов
 global.pathGulp = './_config/';
 // Запуск в продуктовом режиме
-global.prod = process.argv.indexOf('-prod') === '-1' ? false : true;
+global.prod = process.argv.indexOf('-prod') === -1 ? false : true;
 // Загружаем конфиги
 global.conf = configPager();
 
